@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bibliography · ErgoLabs</title><link rel="stylesheet" href="styles.css"></head><body><main><nav aria-label="Main navigation"><a href="index.html"><span class="brand">ErgoLabs</span><span class="brand-tagline">An interactive ergodicity simulator</span></a><div class="nav-links"><a href="index.html#experiments">Experiments</a><a href="bibliography.html">Bibliography</a><span class="muted">Davide Di Conno</span></div></nav><div class="breadcrumb"><a href="index.html">Home</a> / Bibliography</div><section aria-labelledby="bibliographyTitle">
+<div class="eyebrow">Reading and sources</div><h1 id="bibliographyTitle">Where to start reading.</h1><p>Start with the coin-toss explanation below. The longer readings and formal mathematics are listed separately.</p><section aria-labelledby="startReadingTitle"><h2 id="startReadingTitle">Start here</h2><div class="source" id="introductoryReading"><span class="badge">Introductory explanation · Experiment A</span><h3>Ole Peters (2023)</h3><p><em>The infamous coin toss.</em> Ergodicity Economics, 28 July 2023.</p><p><a href="https://ergodicityeconomics.com/blog/the-infamous-coin-toss/" target="_blank" rel="noopener noreferrer">Read the introduction ↗</a></p><p>Explains the +50% / −40% coin-toss game using a worked example and interactive simulations. A useful first reading alongside Experiment A.</p></div></section><section aria-labelledby="furtherReadingTitle"><h2 id="furtherReadingTitle">Further reading</h2><div class="source">
+<span class="badge">Student research essay</span>
+<h3>Davide Di Conno</h3>
+<p><em>How can the ergodic theory be used to maximise one's wealth growth?</em> Student research essay; undated.</p>
+<p class="small">A public reading link is not yet available.</p>
+<details><summary>How it relates to ErgoLabs</summary>
+<p>Page 4 introduces the coin-toss game. Pages 5–7 discuss losses that prevent further play and ways to limit the money at risk.</p>
+<p>The website distinguishes growth rates from averages of wealth, and gradual losses from losing everything. Whether insurance helps depends on the premium and the outcome being assessed. Reducing risk alone does not make wealth ergodic.</p>
+</details>
+</div>
+
+<div class="source">
+<span class="badge">Research paper · Compound growth</span>
+<h3>Ole Peters (2011)</h3>
+<p><em>The time resolution of the St Petersburg paradox.</em> Philosophical Transactions of the Royal Society A, 369, 4913–4931.</p>
+<p><a href="https://doi.org/10.1098/rsta.2011.0065" target="_blank" rel="noopener noreferrer">Read the paper ↗</a></p>
+<details><summary>How it relates to ErgoLabs</summary>
+<p>Section 6, especially equations (6.6)–(6.10), uses logarithms to calculate compound growth. Section 7 explains how this calculation differs in meaning from treating the logarithm of wealth as a measure of personal value, or utility.</p>
+<p>In Peters’ lottery, the ticket price and the player’s wealth affect the fraction at risk. Experiment A instead uses fixed percentage gains and losses. Repeating opportunities on equivalent terms is a model assumption.</p>
+</details>
+</div>
+
+<div class="source">
+<span class="badge">Essay · Risk and ruin</span>
+<h3>Nassim Nicholas Taleb (2017)</h3>
+<p><em>The Logic of Risk Taking.</em> INCERTO, Medium, 25 August 2017.</p>
+<p><a href="https://medium.com/incerto/the-logic-of-risk-taking-107bf41029d3" target="_blank" rel="noopener noreferrer">Read the essay ↗</a></p>
+<details><summary>How it relates to ErgoLabs</summary>
+<p>Taleb’s discussion of ruin inspired the stopping-rule example. The $10 threshold is our illustration of having to stop; the player keeps the remaining money. This example is separate from the mathematical definition of ergodicity.</p>
+</details>
+</div>
+
+</section><section aria-labelledby="formalReadingTitle"><h2 id="formalReadingTitle">Optional mathematical background</h2><p class="small">For readers who want the precise theorem and its assumptions.</p><details><summary>Formal statement of the ergodic theorem</summary><div class="source" id="ergodicityReference">
+<span class="badge">Advanced lecture notes · Formal statement</span>
+<h3>Will J. Merry (2019–2020)</h3>
+<p><em>Sixty Lectures of Dynamical Systems.</em> ETH Zürich. Lecture 20, Corollary 20.3 and Remark 20.4.</p>
+<p><a href="https://www2.math.ethz.ch/will-merry/files/Merry%20-%20Sixty%20Lectures%20of%20Dynamical%20Systems%20%282020%29.pdf#page=138" target="_blank" rel="noopener noreferrer">Read the mathematical statement ↗</a></p>
+<p class="small">Gives the formal conditions under which a time average equals the expected value in the long run. This is optional mathematical background.</p>
+</div>
+
+</details></section><details>
+<summary>Model assumptions, reproducibility &amp; limitations</summary>
+<p>Each player starts with $100. Independent fair tosses multiply all current wealth by 1.5 or 0.6. The main game has no costs, income, spending, borrowing, pooling or early stopping. Balances may include fractions of a cent.</p>
+<p>At round 100, H follows Binomial(100, ½). Wealth is $100 × 1.5ᴴ × 0.6¹⁰⁰⁻ᴴ. Finishing below $100 means H ≤ 55, with exact probability approximately 86.44%.</p>
+<p>The simulation uses Mulberry32 to generate its tosses. Reusing a seed reproduces this website’s results; it need not reproduce results from NumPy. The final-wealth calculation has been checked against the number of heads.</p>
+<p>The simulation illustrates the model; it does not prove ergodicity. A gap between the mean and median is not enough to establish non-ergodicity either.</p>
+<p>Maximising long-run compound growth is one possible aim. A player’s preferences, available money and intended number of rounds can lead to a different choice. This example does not disprove expected-utility theory.</p>
+</details>
+</section>
+<p><a class="button" href="experiment-a.html#results">Go to A’s results</a></p><footer>ErgoLabs · Educational experiments · No investment recommendations<br><a href="index.html">Home</a> · <a href="bibliography.html">Bibliography</a><p class="quiet-note">This website was developed with the aid of ChatGPT.</p></footer></main></body></html>
