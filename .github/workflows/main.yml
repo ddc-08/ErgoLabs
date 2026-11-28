@@ -12,44 +12,133 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: github-pages
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
+
+      - name: Locate project
+        id: project
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -f package.json ]]; then
+            project_dir="."
+          else
+            mapfile -d '' packages < <(
+              find . -maxdepth 4 \
+                -type d \( -name node_modules -o -name .git \
+                  -o -name dist -o -name .output \) -prune \
+                -o -type f -name package.json -print0
+            )
+
+            if [[ "${#packages[@]}" -ne 1 ]]; then
+              echo "::error::Expected one project containing package.json; found ${#packages[@]}. Keep one current project in this repository, preferably at the top level."
+              printf '%s\n' "${packages[@]}"
+              exit 1
+            fi
+
+            project_dir="$(dirname "${packages[0]}")"
+          fi
+
+          echo "Building project in: $project_dir"
+          echo "directory=$project_dir" >> "$GITHUB_OUTPUT"
+
+          if [[ -f "$project_dir/bun.lock" || -f "$project_dir/bun.lockb" ]]; then
+            manager="bun"
+          else
+            manager="npm"
+          fi
+
+          echo "manager=$manager" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 24
 
+      - name: Set up Bun
+        if: steps.project.outputs.manager == 'bun'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: Install dependencies
-        run: npm install
+        working-directory: ${{ steps.project.outputs.directory }}
+        env:
+          PACKAGE_MANAGER: ${{ steps.project.outputs.manager }}
+        shell: bash
+        run: |
+          set -euo pipefail
 
-      - name: Build project
-        run: npm run build
+          if [[ "$PACKAGE_MANAGER" == "bun" ]]; then
+            bun install --frozen-lockfile
+          elif [[ -f package-lock.json || -f npm-shrinkwrap.json ]]; then
+            npm ci
+          else
+            echo "::warning::No npm lockfile found. Commit package-lock.json for reproducible installations."
+            npm install
+          fi
 
-      - name: Configure Pages
+      - name: Build website
+        working-directory: ${{ steps.project.outputs.directory }}
+        env:
+          PACKAGE_MANAGER: ${{ steps.project.outputs.manager }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ "$PACKAGE_MANAGER" == "bun" ]]; then
+            bun run build
+          else
+            npm run build
+          fi
+
+      - name: Locate static website output
+        id: output
+        working-directory: ${{ steps.project.outputs.directory }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Only publish a directory that contains a built homepage.
+          for candidate in dist/client dist .output/public build/client build out; do
+            if [[ -f "$candidate/index.html" ]]; then
+              echo "Publishing static files from: $candidate"
+              echo "directory=$(realpath "$candidate")" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          echo "::error::The build did not produce a recognised static website containing index.html. Configure static export or prerendering, or use hosting that supports this project's server."
+          exit 1
+
+      - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload Pages artifact
+      - name: Upload website
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ./dist
+          path: ${{ steps.output.outputs.directory }}
 
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
 
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy website
         id: deployment
         uses: actions/deploy-pages@v4
